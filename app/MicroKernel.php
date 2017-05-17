@@ -70,10 +70,9 @@ class MicroKernel extends Kernel
 
     public function loginAction(Request $request): JsonResponse
     {
-        $user = $request->get('user');
-        $password = $request->get('password');
+        $content = json_decode($request->getContent());
 
-        if ('tester' === $user && 'password123' === $password) {
+        if ('tester' === $content->user && 'password123' === $content->password) {
             return new JsonResponse(['authenticationToken' => self::AUTH_TOKEN]);
         }
 
@@ -163,11 +162,13 @@ class MicroKernel extends Kernel
             return $this->invalidTokenResponse();
         }
 
-        if (array_search('jan@1231231', $request->get('emails'))) {
+        $content = json_decode($request->getContent());
+
+        if (array_search('jan@1231231', $content->emails)) {
             return new JsonResponse(['error' => 'Invalid email: jan@1231231'], Response::HTTP_BAD_REQUEST);
         }
 
-        if (array_search('szefowie', $request->get('ldapGroups'))) {
+        if (array_search('szefowie', $content->ldapGroups)) {
             return new JsonResponse(['error' => 'ldapGroup \'szefowie\' doesn\'t exist'], Response::HTTP_BAD_REQUEST);
         }
 
@@ -180,7 +181,9 @@ class MicroKernel extends Kernel
             return $this->invalidTokenResponse();
         }
 
-        if (!in_array($request->get('status'), ['open', 'declined', 'resolved'])) {
+        $content = json_decode($request->getContent());
+
+        if (!in_array($content->status, ['open', 'declined', 'resolved'])) {
             return new JsonResponse(['error' => 'Invalid status']);
          }
 
